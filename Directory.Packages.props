@@ -1,0 +1,13 @@
+<Project>
+  <ItemGroup>
+    <PackageVersion Include="Amazon.Lambda.RuntimeSupport" Version="1.10.0" />
+    <PackageVersion Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0-beta1.23525.2" PrivateAssets="all" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" PrivateAssets="all" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.0-rtm.23523.3" />
+
+    <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" />
+    <GlobalPackageReference Include="Roslynator.Analyzers" Version="4.6.2" />
+    <GlobalPackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.507" />
+  </ItemGroup>
+</Project>

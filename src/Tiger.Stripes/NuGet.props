@@ -1,0 +1,21 @@
+<Project>
+  
+  <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <PackageId>Tiger.Stripes</PackageId>
+    <PackageTags>lambda;host;aws;amazon;lambda-function</PackageTags>
+    <PackageReleaseNotes><![CDATA[➟ Release 1.0.0
+⁃ Everything is new!
+]]></PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="$(PackageId).targets" PackagePath="build/" />
+    <Content Include="$(PackageId).targets" PackagePath="buildCrossTargeting/" />
+    <Content Include="$(PackageId).props" PackagePath="build/" />
+    <Content Include="$(PackageId).props" PackagePath="buildCrossTargeting/" />
+  </ItemGroup>
+
+  <Import Project="../NuGet.props" />
+
+</Project>

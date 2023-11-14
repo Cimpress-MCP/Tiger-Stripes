@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Simplifies the configuration and initialization of AWS Lambda Functions.</Description>
+    <AssemblyTitle>Tiger Stripes</AssemblyTitle>
+    <IsAotCompatible>true</IsAotCompatible>
+    <EnableConfigurationBindingGenerator>true</EnableConfigurationBindingGenerator>
+    <Features>$(Features);InterceptorsPreview</Features>
+  </PropertyGroup>
+
+  <Import Project="NuGet.props" />
+
+  <ItemGroup>
+    <PackageReference Include="Amazon.Lambda.RuntimeSupport" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
+
+    <ProjectReference Include="../../gen/Tiger.Stripes.Generator.csproj" OutputItemType="Analyzer" PrivateAssets="all" Private="false" />
+
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Runtime.CompilerServices" />
+    <Using Include="System.Text.Json" />
+    <Using Include="System.Text.Json.Serialization" />
+    <Using Include="System.Text.Json.Serialization.Metadata" />
+    <Using Include="Amazon.Lambda.Core" />
+    <Using Include="Amazon.Lambda.RuntimeSupport" />
+    <Using Include="Microsoft.Extensions.Configuration" />
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Hosting" />
+    <Using Include="Microsoft.Extensions.FileProviders" />
+    <Using Include="Microsoft.Extensions.Logging" />
+    <Using Include="Microsoft.Extensions.Options" />
+    <Using Include="Tiger.Stripes.Generator" />
+    <Using Static="true" Include="System.Runtime.CompilerServices.MethodImplOptions" />
+    <Using Static="true" Include="System.Text.Encodings.Web.JavaScriptEncoder" />
+    <Using Static="true" Include="System.Text.Json.JsonNamingPolicy" />
+    <Using Static="true" Include="System.Text.Json.JsonSerializerDefaults" />
+    <Using Static="true" Include="System.Text.Json.Serialization.JsonIgnoreCondition" />
+    <Using Static="true" Include="Microsoft.Extensions.Logging.LogLevel" />
+
+    <AssemblyAttribute Include="GenerateOverloadsAttribute" />
+  </ItemGroup>
+
+</Project>
