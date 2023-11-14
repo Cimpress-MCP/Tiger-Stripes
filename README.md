@@ -1,8 +1,8 @@
-# Tiger.Lambda
+# Tiger.Stripes
 
 ## What It Is
 
-Tiger.Lambda is a .NET library for simplifying the configuration and development of AWS Lambda Functions written in C#. It provides a common host allowing for configuration and dependency injection nearly identical to that of ASP.NET Core.
+Tiger.Stripes is a .NET library for simplifying the configuration and development of AWS Lambda Functions written in C# and compiled to NativeAOT. It provides a common host allowing for configuration and dependency injection nearly identical to that of ASP.NET Core.
 
 ## Why You Want It
 
@@ -19,50 +19,44 @@ Even appsettings files are supported.
 
 ## How To Use It
 
-The concept of a function handler is exposed to dependency injection as a type `IHandler<TIn, TOut>`.
-This handler's `Task<TOut> HandleAsync(TIn,ILambdaContext,CancellationToken)` method will be called
-after asking DI for an instance satisfying `IHandler<TIn, TOut>`.
+This library _only_ targets .NET 8 and _only_ targets AOT compilation.
+It simply will not work under the managed `dotnet8` runtime.
+It must be deployed to a `provided.*` runtime.
+
+The concept of a function handler is exposed by mapping a handler function to a name in the application builder.
 The following _extremely simplified_ example illustrates a basic setup.
 
 ```csharp
-namespace Example
-{
-  public sealed class PerformAction
-    : IHandler<string, int>
-  {
-    readonly IValueGetter _valueGetter;
+var builder = DownloaderApplication.CreateBuilder();
 
-    public Handler(IValueGetter valueGetter)
+_ = builder.Services.AddSingleton(TimeProvider.System);
+_ = builder.Services
+    .AddSingleton<IValidateOptions<VendingMachineOptions>, VendingMachineOptions.Validator>()
+    .AddOptions<VendingMachineOptions>()
+    .BindConfiguration(VendingMachineOptions.VendingMachine);
+
+await using var app = builder.Build();
+_ = app.MapInvoke(
+    "Vendor",
+    static (object _, IAmazonS3 s3, TimeProvider time, IOptions<VendingMachineOptions> o) =>
     {
-      _valueGetter = valueGetter;
-    }
+        var now = time.GetUtcNow();
+        var req = new GetPreSignedUrlRequest
+        {
+            BucketName = o.Value.BucketName,
+            Expires = now.Add(o.Value.CredentialsDuration).UtcDateTime,
+            Key = Ulid.NewUlid(now).ToString("G", CI.InvariantCulture),
+            Verb = HttpVerb.PUT,
+        };
+        return Results.Created(s3.GetPreSignedURL(req));
+    },
+    AwsContext.Default);
 
-    public async Task<int> HandleAsync(string input, ILambdaContext context, CancellationToken cancellationToken = default)
-    {
-      var value = await _valueGetter
-        .GetValue(input, cancellationToken)
-        .ConfigureAwait(false);
-
-      return value;
-    }
-
-    // This may of course exist in another file, if desired.
-    public sealed class EntryPoint
-      : EntryPoint<string, int>
-    {
-      public override void ConfigureServices(HostBuilderContext context, IServiceCollection services)
-      {
-        base.ConfigureServices(context, services);
-        _ = services.AddSingleton<IValueGetter, HttpValueGetter>();
-      }
-    }
-  }
-}
+await app.RunAsync();
 ```
 
-The lambda's entry point is the `Task<TOut> HandleAsync(TIn,ILambdaContext)` method of the entry point class inheriting from `EntryPoint<TIn, TOut>`.
-This can be set in Lambda configuration in the usual fashion.
-For the example above, it would resemble "Documentation::Example.PerformAction+EntryPoint::HandleAsync".
+Invocations map a function handler to a name, and also provide the means to serialize input and deserialize outputs.
+This can be provided by a single instance of a type inheriting from `JsonSerializerContext` or by two instances of `JsonTypeInfo<T>`.
 
 ## Thank You
 
