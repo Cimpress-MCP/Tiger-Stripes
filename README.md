@@ -12,7 +12,7 @@ each of which requires its own set of dependencies,
 some of which are `IOptions<TOptions>`,
 and didn't Microsoft just release a library to _simplify_ HttpClient?
 
-Tiger.Lambda provides a host very similar to the `WebHost` of ASP.NET Core,
+Tiger.Lambda provides a host very similar to the `WebApplicationHost` of ASP.NET Core,
 allowing the application to be configured in all the ways familiar to an ASP.NET Core developer.
 The most common actions are exposed as overrideable methods on the Function handler.
 Even appsettings files are supported.
