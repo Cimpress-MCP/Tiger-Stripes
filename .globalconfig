@@ -174,7 +174,7 @@ dotnet_naming_symbols.constants.required_modifiers = const
 
 dotnet_naming_style.constant_style.capitalization = pascal_case
 
-# Static fields are camelCase and start with _
+# Static fields are camelCase and start with s_
 dotnet_naming_rule.static_fields_should_be_camel_case.severity = error
 dotnet_naming_rule.static_fields_should_be_camel_case.symbols = static_fields
 dotnet_naming_rule.static_fields_should_be_camel_case.style = static_field_style
@@ -227,36 +227,41 @@ stylecop.naming.includeInferredTupleElementNames = true
 
 # Roslynator Rules
 roslynator_accessibility_modifiers = implicit
+roslynator_accessor_braces_style = single_line_when_expression_is_on_single_line
+roslynator_array_creation_type_style = implicit
+roslynator_arrow_token_new_line = after
+roslynator_binary_operator_new_line = after
+roslynator_blank_line_after_file_scoped_namespace_declaration = true
+roslynator_blank_line_between_closing_brace_and_switch_section = true
 roslynator_blank_line_between_single_line_accessors = true
 roslynator_blank_line_between_switch_sections = false
 roslynator_blank_line_between_using_directives = never
-roslynator_accessor_braces_style = single_line_when_expression_is_on_single_line
 roslynator_block_braces_style = multi_line
-roslynator_binary_operator_new_line = after
-roslynator_conditional_operator_new_line = after
-roslynator_arrow_token_new_line = after
-roslynator_new_line_before_while_in_do_statement = true
-roslynator_equals_token_new_line = after
-roslynator_new_line_at_end_of_file = true
-roslynator_null_conditional_operator_new_line = before
-roslynator_array_creation_type_style = implicit
 roslynator_body_style = expression
+roslynator_conditional_operator_condition_parentheses_style = omit
+roslynator_conditional_operator_new_line = after
+roslynator_configure_await = true
+roslynator_doc_comment_summary_style = multi_line
+roslynator_empty_string_style = field
+roslynator_enum_flag_value_style = shift_operator
+roslynator_enum_has_flag_style = method
+roslynator_equals_token_new_line = after
+roslynator_infinite_loop_style = while
+roslynator_new_line_at_end_of_file = true
+roslynator_new_line_before_while_in_do_statement = true
+roslynator_null_check_style = pattern_matching
+roslynator_null_conditional_operator_new_line = before
+roslynator_object_creation_parentheses_style = omit
+roslynator_object_creation_type_style = implicit
+roslynator_prefix_field_identifier_with_underscore = true
+roslynator_trailing_comma_style = include
+roslynator_use_anonymous_function_or_method_group = method_group
 roslynator_use_block_body_when_declaration_spans_over_multiple_lines = true
 roslynator_use_block_body_when_expression_spans_over_multiple_lines = true
-roslynator_object_creation_parentheses_style = omit
-roslynator_conditional_operator_condition_parentheses_style = omit
-roslynator_empty_string_style = field
-roslynator_configure_await = true
-roslynator_enum_has_flag_style = method
-roslynator_use_anonymous_function_or_method_group = method_group
-roslynator_null_check_style = pattern_matching
-roslynator_object_creation_type_style = implicit
 roslynator_use_var_instead_of_implicit_object_creation = true
 
 # Undesirable Refactorings
-dotnet_diagnostic.CA1034.severity = none # We nest types.
-dotnet_diagnostic.CA1724.severity = none # We name types whatever we want them to be named.
-dotnet_diagnostic.IDE0130.severity = none # Namespace does not match folder structure.
+dotnet_diagnostic.CA2007.severity = none # Called from Console application, which doesn't have a SynchronizationContext.
 
 # Deprecated StyleCop Rules
 dotnet_diagnostic.SA1101.severity = none
@@ -268,5 +273,5 @@ dotnet_diagnostic.SA1400.severity = none
 dotnet_diagnostic.SA1636.severity = none
 
 # Open Source Rules
-dotnet_diagnostic.IDE0073.severity = error
-file_header_template = <copyright file="{fileName}" company="Cimpress, Inc.">\n  Copyright 2023 Cimpress, Inc.\n\n  Licensed under the Apache License, Version 2.0 (the "License") –\n  you may not use this file except in compliance with the License.\n  You may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\n  Unless required by applicable law or agreed to in writing, software\n  distributed under the License is distributed on an "AS IS" BASIS,\n  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  See the License for the specific language governing permissions and\n  limitations under the License.\n</copyright>
+stylecop.documentation.companyName = Cimpress, Inc.
+file_header_template = Copyright 2023 {companyName}\n\nLicensed under the Apache License, Version 2.0 (the "License") –\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an "AS IS" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.

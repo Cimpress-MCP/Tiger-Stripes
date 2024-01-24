@@ -9,9 +9,3 @@ indent_style = space
 
 [*.cs]
 indent_size = 4
-
-dotnet_diagnostic.CA2007.severity = none # Called from Console application, which doesn't have a SynchronizationContext.
-
-# Analyzer Does Not Understand
-dotnet_diagnostic.RCS1197.severity = none # Doesn't yet know about the `ref AppendInterpolatedStringHandler` overload.
-dotnet_diagnostic.SA1010.severity = none # Analyzer doesn't understand collection expressions.

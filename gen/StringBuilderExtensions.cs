@@ -1,23 +1,22 @@
 // <copyright file="StringBuilderExtensions.cs" company="Cimpress, Inc.">
-//   Copyright 2023 Cimpress, Inc.
+// Copyright 2023 Cimpress, Inc.
 //
-//   Licensed under the Apache License, Version 2.0 (the "License") –
-//   you may not use this file except in compliance with the License.
-//   You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License") –
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+//  http://www.apache.org/licenses/LICENSE-2.0
 //
-//   Unless required by applicable law or agreed to in writing, software
-//   distributed under the License is distributed on an "AS IS" BASIS,
-//   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//   See the License for the specific language governing permissions and
-//   limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 // </copyright>
 
 namespace Tiger.Stripes.Generator;
 
 /// <summary>Extensions to the functionality of the <see cref="StringBuilder"/> class.</summary>
-[SuppressMessage("StyleCop.Readability", "SA1118", Justification = "Analyzer doesn't understand raw string literals.")]
 static class StringBuilderExtensions
 {
     /// <summary>Appends arguments to this instance.</summary>
@@ -31,6 +30,7 @@ static class StringBuilderExtensions
     /// <param name="builder">The instance to which to append declarations.</param>
     /// <param name="count">The number of declarations.</param>
     /// <returns>This instance.</returns>
+    [SuppressMessage("StyleCop.Readability", "SA1118", Justification = "Analyzer doesn't understand raw string literals.")]
     public static StringBuilder AppendDeclarations(this StringBuilder builder, int count) =>
         AppendAggregate(builder, count, static (acc, cur) => acc.AppendLine(InvariantCulture, $"""
                 var dependency{cur} = scope.ServiceProvider.GetOverridableService<TDependency{cur}>(req, name);

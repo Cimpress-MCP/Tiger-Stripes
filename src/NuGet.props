@@ -3,6 +3,7 @@
   <PropertyGroup>
     <PackageProjectUrl>https://github.com/Cimpress-MCP/Tiger-Stripes</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>./tiger_logo.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/Cimpress-MCP/Tiger-Stripes.git</RepositoryUrl>
@@ -14,6 +15,7 @@
 
   <ItemGroup>
     <None Include="$(MSBuildThisFileDirectory)../tiger_logo.png" Pack="true" PackagePath="" />
+    <None Include="$(MSBuildThisFileDirectory)../README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
 </Project>

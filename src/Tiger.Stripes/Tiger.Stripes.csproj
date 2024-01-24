@@ -10,6 +10,17 @@
 
   <Import Project="NuGet.props" />
 
+<!--
+  <PropertyGroup>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/*/**/*.cs" />
+  </ItemGroup>
+-->
+
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.RuntimeSupport" />
     <PackageReference Include="CommunityToolkit.HighPerformance" />
@@ -17,7 +28,6 @@
 
     <ProjectReference Include="../../gen/Tiger.Stripes.Generator.csproj" OutputItemType="Analyzer" PrivateAssets="all" Private="false" />
 
-    <Using Include="System.Diagnostics" />
     <Using Include="System.Runtime.CompilerServices" />
     <Using Include="System.Text.Json" />
     <Using Include="System.Text.Json.Serialization" />
@@ -26,6 +36,7 @@
     <Using Include="Amazon.Lambda.RuntimeSupport" />
     <Using Include="Microsoft.Extensions.Configuration" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
+    <Using Include="Microsoft.Extensions.Diagnostics.Metrics" />
     <Using Include="Microsoft.Extensions.Hosting" />
     <Using Include="Microsoft.Extensions.FileProviders" />
     <Using Include="Microsoft.Extensions.Logging" />

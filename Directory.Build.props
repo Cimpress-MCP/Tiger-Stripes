@@ -1,10 +1,11 @@
 <Project>
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Copyright>©Cimpress 2021</Copyright>
+    <Copyright>©Cimpress 2023</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Nullable>enable</Nullable>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnforceCodeStyleSeverityInBuild>true</EnforceCodeStyleSeverityInBuild>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AnalysisMode>all</AnalysisMode>
     <AnalysisLevel>preview</AnalysisLevel>
