@@ -1,5 +1,5 @@
-// <copyright file="OverloadsGenerator.Parser.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="Parser.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@
 namespace Tiger.Stripes.Generator;
 
 /// <summary>Generates overloads for invocation mapping methods.</summary>
-partial class OverloadsGenerator
+static class Parser
 {
-    static class Parser
-    {
-        public const string GenerateOverloadsAttribute = "Tiger.Stripes.Generator.GenerateOverloadsAttribute";
-    }
+    /// <summary>The fully-qualified type name of the overload-generating attribute.</summary>
+    public const string GenerateOverloadsAttribute = "Tiger.Stripes.Generator.GenerateOverloadsAttribute";
 }

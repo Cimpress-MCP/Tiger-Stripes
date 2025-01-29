@@ -1,0 +1,32 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.git/": true,
+      "**/.github/": true,
+      "**/.DS_Store": true,
+      ".devcontainer/": true,
+      ".mono/": true,
+      "artifacts/": true,
+      "*.code-workspace": true,
+      ".editorconfig": true,
+      ".gitignore": true,
+      ".gitattributes": true,
+      ".globalconfig": true,
+      "global.json": true,
+      "nuget.config": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "EditorConfig.EditorConfig",
+      "ms-dotnettools.csdevkit",
+      "ms-dotnettools.csharp",
+      "ms-dotnettools.vscodeintellicode-csharp"
+    ]
+  }
+}

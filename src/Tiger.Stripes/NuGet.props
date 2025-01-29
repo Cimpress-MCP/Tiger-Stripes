@@ -12,8 +12,6 @@
   <ItemGroup>
     <Content Include="$(PackageId).targets" PackagePath="build/" />
     <Content Include="$(PackageId).targets" PackagePath="buildCrossTargeting/" />
-    <Content Include="$(PackageId).props" PackagePath="build/" />
-    <Content Include="$(PackageId).props" PackagePath="buildCrossTargeting/" />
   </ItemGroup>
 
   <Import Project="../NuGet.props" />

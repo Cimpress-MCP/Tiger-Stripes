@@ -1,5 +1,5 @@
-// <copyright file="Overload.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="Overload.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.
@@ -45,32 +45,36 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
     /// <param name="builder">The string builder into which to generate serialization setup code.</param>
     /// <returns>The string builder.</returns>
     public virtual StringBuilder GenerateSerializationSetup(StringBuilder builder) => builder
-        .AppendLineIf(HasResult, """
-        var outputWriter = new global::CommunityToolkit.HighPerformance.Buffers.ArrayPoolBufferWriter<byte>();
-        var jsonWriter = new global::System.Text.Json.Utf8JsonWriter(outputWriter, new global::System.Text.Json.JsonWriterOptions
-        {
-            Encoder = global::System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
-        });
-""");
+        .AppendLine("""
+            if (!isColdStart)
+            {
+                s_outputPipe.Reset();
+                s_jsonWriter.Reset(s_outputPipe.Writer);
+            }
+""")
+        .AppendLine();
 
     /// <summary>Generates serialization code.</summary>
     /// <param name="builder">The string builder into which to generate serialization code.</param>
     /// <returns>The string builder.</returns>
     public virtual StringBuilder GenerateSerialization(StringBuilder builder) => builder
-        .AppendIf(HasResult, $"""
-                JsonSerializer.Serialize(jsonWriter, output, {(HasUnifiedContext ? "typeof(TOutput), serializerContext" : "outputTypeInfo")});
-        
+        .AppendLineIf(HasResult, $"""
+                global::System.Text.Json.JsonSerializer.Serialize(s_jsonWriter, output, {(HasUnifiedContext ? "typeof(TOutput), serializerContext" : "outputTypeInfo")});
 """);
 
     /// <summary>Generates serialization cleanup code.</summary>
     /// <param name="builder">The string builder into which to generate serialization cleanup code.</param>
     /// <returns>The string builder.</returns>
-    public StringBuilder GenerateSerializationCleanup(StringBuilder builder) => GenerateSerializationCleanupCore(builder)
+    public StringBuilder GenerateSerializationCleanup(StringBuilder builder) => builder
+        .AppendLineIf(HasResult, """
+                await s_outputPipe.Writer.CompleteAsync();
+""")
         .AppendLine("""
+                isColdStart = false;
                 if (!cts.TryReset())
                 {
                     cts.Dispose();
-                    cts = new global::System.Threading.CancellationTokenSource();
+                    cts = new();
                 }
 """);
 
@@ -80,21 +84,15 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
     /// <remarks>Mrgrgr, I hate this, but I don't know how to do without it.</remarks>
     public StringBuilder GenerateOutput(StringBuilder builder) => GenerateOutputCore(builder.AppendIf(!IsVoid, ", "));
 
-    /// <summary>Generates serialization cleanup code.</summary>
-    /// <param name="builder">The string builder into which to generate serialization cleanup code.</param>
-    /// <returns>The string builder.</returns>
-    protected virtual StringBuilder GenerateSerializationCleanupCore(StringBuilder builder) => builder
-        .AppendLineIf(HasResult, """
-                jsonWriter.Reset();
-""");
-
     /// <summary>Generates the output type for an overload.</summary>
     /// <param name="builder">The string builder into which to generate an output type.</param>
     /// <returns>The string builder.</returns>
     protected abstract StringBuilder GenerateOutputCore(StringBuilder builder);
 
     /// <summary>Represents a sync overload.</summary>
-    /// <inheritdoc/>
+    /// <param name="HasResult">Whether the overload produces a result.</param>
+    /// <param name="HasUnifiedContext">Whether the overload uses a single, unified serialization context.</param>
+    /// <param name="Count">The number of dependencies to the overload.</param>
     public sealed record class Sync(bool HasResult, bool HasUnifiedContext, int Count)
         : Overload(HasResult, HasUnifiedContext, Count)
     {
@@ -112,7 +110,9 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
     }
 
     /// <summary>Represents an async overload.</summary>
-    /// <inheritdoc/>
+    /// <param name="HasResult">Whether the overload produces a result.</param>
+    /// <param name="HasUnifiedContext">Whether the overload uses a single, unified serialization context.</param>
+    /// <param name="Count">The number of dependencies to the overload.</param>
     public sealed record class Async(bool HasResult, bool HasUnifiedContext, int Count)
         : Overload(HasResult, HasUnifiedContext, Count)
     {
@@ -126,32 +126,38 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
     }
 
     /// <summary>Represents an async enumerable overload.</summary>
-    /// <inheritdoc/>
+    /// <param name="HasResult">Whether the overload produces a result.</param>
+    /// <param name="HasUnifiedContext">Whether the overload uses a single, unified serialization context.</param>
+    /// <param name="Count">The number of dependencies to the overload.</param>
     public sealed record class AsyncEnumerable(bool HasResult, bool HasUnifiedContext, int Count)
         : Overload(HasResult, HasUnifiedContext, Count)
     {
-        /// <inheritdoc/>
+        /// <summary>Generates serialization setup code.</summary>
+        /// <param name="builder">The string builder into which to generate serialization setup code.</param>
+        /// <returns>The string builder.</returns>
         public override StringBuilder GenerateSerializationSetup(StringBuilder builder) => builder
-            .AppendLineIf(HasResult, """
-        var outputWriter = new global::CommunityToolkit.HighPerformance.Buffers.ArrayPoolBufferWriter<byte>();
-""");
+            .AppendLine("""
+            if (!isColdStart)
+            {
+                s_outputPipe.Reset();
+            }
+""")
+            .AppendLine();
 
         /// <inheritdoc/>
         public override StringBuilder GenerateSerialization(StringBuilder builder) => builder
-            .Append(InvariantCulture, $"""
-                await JsonSerializer.SerializeAsync(
-                    global::CommunityToolkit.HighPerformance.ArrayPoolBufferWriterExtensions.AsStream(outputWriter),
+            .AppendLine($"""
+                await global::System.Text.Json.JsonSerializer.SerializeAsync(
+                    s_outputPipe.Writer.AsStream(),
                     output,
                     {(HasUnifiedContext
                     ? """
 typeof(global::System.Collections.Generic.IAsyncEnumerable<TOutput>),
                     serializerContext
-""" : "outputTypeInfo")},
+"""
+                    : "outputTypeInfo")},
                     cts.Token);
 """);
-
-        /// <inheritdoc/>
-        protected override StringBuilder GenerateSerializationCleanupCore(StringBuilder builder) => builder;
 
         /// <inheritdoc/>
         protected override StringBuilder GenerateOutputCore(StringBuilder builder) => builder

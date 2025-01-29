@@ -1,5 +1,5 @@
-// <copyright file="IInvocationBuilder.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="IInvocationBuilder.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.

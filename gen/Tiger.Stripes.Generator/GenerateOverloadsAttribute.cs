@@ -1,4 +1,4 @@
-// <copyright file="ILambdaHostEnvironment.cs" company="Cimpress plc">
+// <copyright file="GenerateOverloadsAttribute.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -14,14 +14,9 @@
 // limitations under the License.
 // </copyright>
 
-namespace Tiger.Stripes;
+namespace Tiger.Stripes.Generator;
 
-/// <summary>Provides information about the hosting environment an application is running in.</summary>
-public interface ILambdaHostEnvironment
-    : IHostEnvironment
-{
-    /// <summary>
-    /// Gets or sets the lead time before Lambda environment freeze at which cancellation tokens should request cancellation.
-    /// </summary>
-    TimeSpan CancellationLeadTime { get; set; }
-}
+/// <summary>Marks the method as reqiring overloads to be generated.</summary>
+[AttributeUsage(AttributeTargets.Assembly)]
+public sealed class GenerateOverloadsAttribute
+    : Attribute;

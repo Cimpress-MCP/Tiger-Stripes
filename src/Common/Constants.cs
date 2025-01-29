@@ -1,5 +1,5 @@
-// <copyright file="GenerateOverloadsAttribute.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="Constants.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.
@@ -14,9 +14,11 @@
 // limitations under the License.
 // </copyright>
 
-namespace Tiger.Stripes.Generator;
+namespace Common;
 
-/// <summary>Marks the method as reqiring overloads to be generated.</summary>
-[AttributeUsage(AttributeTargets.Assembly)]
-public sealed class GenerateOverloadsAttribute
-    : Attribute;
+/// <summary>Constants.</summary>
+static class Constants
+{
+    /// <summary>The name of the telemetry source for all telemetry emitted by the library.</summary>
+    public const string TelemetrySourceName = "Tiger.Stripes";
+}

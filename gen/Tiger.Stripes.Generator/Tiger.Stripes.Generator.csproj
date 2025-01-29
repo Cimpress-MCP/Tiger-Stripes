@@ -1,24 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
 
     <Using Include="System.Collections.Frozen" />
     <Using Include="System.Collections.Immutable" />
+    <Using Include="System.ComponentModel" />
     <Using Include="System.Reflection" />
     <Using Include="System.Text" />
     <Using Include="Microsoft.CodeAnalysis" />
     <Using Include="Microsoft.CodeAnalysis.CSharp.Syntax" />
     <Using Include="Microsoft.CodeAnalysis.Text" />
     <Using Include="Microsoft.CodeAnalysis" />
-    <Using Static="true" Include="System.AttributeTargets" />
+    <Using Static="true" Include="System.ComponentModel.EditorBrowsableState" />
     <Using Static="true" Include="System.Globalization.CultureInfo" />
   </ItemGroup>
 

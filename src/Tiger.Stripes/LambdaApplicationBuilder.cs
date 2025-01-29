@@ -1,5 +1,5 @@
-// <copyright file="LambdaApplicationBuilder.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="LambdaApplicationBuilder.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.
@@ -13,10 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // </copyright>
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-using static System.Diagnostics.Debug;
-using Env = System.Environment;
+
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using D = System.Diagnostics.Debug;
 
 namespace Tiger.Stripes;
 
@@ -24,8 +23,7 @@ namespace Tiger.Stripes;
 public sealed class LambdaApplicationBuilder
     : IHostApplicationBuilder
 {
-    const string CancellationTimeoutKey = "cancellationTimeout";
-    static readonly TimeSpan s_cancellationTimeoutDefaultValue = TimeSpan.FromMilliseconds(500);
+    static readonly TimeSpan s_cancellationLeadTimeDefaultValue = TimeSpan.FromMilliseconds(500);
 
     readonly HostApplicationBuilder _hostApplicationBuilder;
 
@@ -33,16 +31,15 @@ public sealed class LambdaApplicationBuilder
     /// <param name="options">The application's configuration options.</param>
     internal LambdaApplicationBuilder(LambdaApplicationOptions options)
     {
-        _hostApplicationBuilder = Host.CreateApplicationBuilder(options.ToSettings(new()));
+        var configuration = PreConfigure();
 
-        // note(cosborn) I don't want to reimplement HostApplicationBuilder, so we'll wrap the environment here.
-        _ = _hostApplicationBuilder.Configuration.AddEnvironmentVariables(prefix: "LAMBDA_");
+        _hostApplicationBuilder = Host.CreateApplicationBuilder(options.ToHostSettings(configuration));
 
         Environment = new LambdaHostEnvironment(_hostApplicationBuilder.Environment)
         {
-            CancellationTimeout = CancellationTimeout(options, Configuration),
+            CancellationLeadTime = CancellationLeadTime(options, Configuration),
         };
-        _ = Services.AddSingleton(Environment);
+        PostConfigure();
     }
 
     /// <summary>Initializes a new instance of the <see cref="LambdaApplicationBuilder"/> class.</summary>
@@ -50,34 +47,42 @@ public sealed class LambdaApplicationBuilder
     /// <param name="slim">A marker token indicating slim building.</param>
     internal LambdaApplicationBuilder(LambdaApplicationOptions options, bool slim)
     {
-        Assert(slim, "should only be called with slim: true");
+        D.Assert(slim, "should only be called with slim: true");
 
-        var configuration = new ConfigurationManager();
-        if (options is { ContentRootPath: null })
+        var configuration = PreConfigure();
+
+        /* note(cosborn)
+         * Value of `ContentRoot` is set *between* `LAMBDA_` and `DOTNET_` environment variables
+         * in order to match the behavior of other implementations of `IHostApplicationBuilder`.
+         */
+        if (options is { ContentRootPath: null } && configuration[HostDefaults.ContentRootKey] is null)
         {
-            configuration[HostDefaults.ContentRootKey] = Env.CurrentDirectory;
+            /* note(cosborn)
+             * Other implementations do more checks here, but Lambda only runs as Linux.
+             * `System.Environment.SystemDirectory` is always the empty string on Linux.
+             */
+            _ = configuration.AddInMemoryCollection([new(HostDefaults.ContentRootKey, Env.CurrentDirectory)]);
         }
 
         _ = configuration.AddEnvironmentVariables(prefix: "DOTNET_");
-        _ = configuration.AddEnvironmentVariables(prefix: "LAMBDA_");
 
-        _hostApplicationBuilder = Host.CreateEmptyApplicationBuilder(options.ToSettings(configuration));
+        _hostApplicationBuilder = Host.CreateEmptyApplicationBuilder(options.ToHostSettings(configuration));
 
-        _ = _hostApplicationBuilder.Configuration.AddEnvironmentVariables();
+        _ = Configuration.AddEnvironmentVariables();
 
-        DefaultServiceProviderFactory serviceProviderFactory = _hostApplicationBuilder.Environment.IsDevelopment()
+        var serviceProviderFactory = _hostApplicationBuilder.Environment.IsDevelopment()
             ? new(new()
             {
                 ValidateOnBuild = true,
                 ValidateScopes = true,
-            }) : new();
+            }) : new DefaultServiceProviderFactory();
         _hostApplicationBuilder.ConfigureContainer(serviceProviderFactory);
 
         Environment = new LambdaHostEnvironment(_hostApplicationBuilder.Environment)
         {
-            CancellationTimeout = CancellationTimeout(options, Configuration),
+            CancellationLeadTime = CancellationLeadTime(options, Configuration),
         };
-        _ = Services.AddSingleton(Environment);
+        PostConfigure();
     }
 
     /// <inheritdoc cref="IHostApplicationBuilder.Environment"/>
@@ -109,16 +114,33 @@ public sealed class LambdaApplicationBuilder
     public void ConfigureContainer<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory, Action<TContainerBuilder>? configure = null)
         where TContainerBuilder : notnull => _hostApplicationBuilder.ConfigureContainer(factory, configure);
 
-    static TimeSpan CancellationTimeout(LambdaApplicationOptions options, IConfigurationManager configuration) => options.CancellationTimeout
-        ?? configuration.GetValue<TimeSpan?>(CancellationTimeoutKey)
-        ?? s_cancellationTimeoutDefaultValue;
+    [MethodImpl(AggressiveInlining)]
+    static TimeSpan CancellationLeadTime(LambdaApplicationOptions options, IConfigurationManager configuration) => options.CancellationLeadTime
+        ?? configuration.GetValue<TimeSpan?>(CancellationLeadTimeKey)
+        ?? s_cancellationLeadTimeDefaultValue;
 
-    /// <summary>The environment in which the application is hosted.</summary>
+    [MethodImpl(AggressiveInlining)]
+    static ConfigurationManager PreConfigure()
+    {
+        var configuration = new ConfigurationManager();
+
+        // note(cosborn) I don't want to reimplement HostApplicationBuilder, so we'll wrap the environment here.
+        _ = configuration.AddEnvironmentVariables(prefix: "LAMBDA_");
+        return configuration;
+    }
+
+    [MethodImpl(AggressiveInlining)]
+    void PostConfigure() => Services
+        .AddSingleton(Environment)
+        .AddSingleton<NearlyOutOfTimeNotifier>()
+        .AddSingleton<LambdaBootstrapHandlerRegistry>()
+        .AddHostedService<LambdaBackgroundService>();
+
     sealed class LambdaHostEnvironment(IHostEnvironment env)
         : ILambdaHostEnvironment
     {
         /// <inheritdoc/>
-        public TimeSpan CancellationTimeout { get; set; }
+        public TimeSpan CancellationLeadTime { get; set; }
 
         /// <inheritdoc/>
         public string EnvironmentName

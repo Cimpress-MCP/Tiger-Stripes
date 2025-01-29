@@ -1,5 +1,5 @@
-// <copyright file="OverloadsGenerator.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="OverloadsGenerator.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ namespace Tiger.Stripes.Generator;
 
 /// <summary>Generates overloads for invocation mapping methods.</summary>
 [Generator]
-public sealed partial class OverloadsGenerator
+public sealed class OverloadsGenerator
     : IIncrementalGenerator
 {
     /* note(cosborn)
@@ -48,8 +48,16 @@ public sealed partial class OverloadsGenerator
             return;
         }
 
-        var e = new Emitter();
-        var result = e.Emit(context.CancellationToken);
-        context.AddSource("InvocationBuilderExtensions.g.cs", SourceText.From(result, s_encoding));
+        IEnumerable<Emitter> emitters =
+        [
+            new MapEmitter(new()),
+            new RunEmitter(new()),
+        ];
+
+        foreach (var emitter in emitters)
+        {
+            var result = emitter.Emit(context.CancellationToken);
+            context.AddSource($"{emitter.ClassName}.{emitter.MethodName}.g.cs", SourceText.From(result, s_encoding));
+        }
     }
 }

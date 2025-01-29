@@ -1,5 +1,5 @@
-// <copyright file="InvocationBuilderExtensions.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="InvocationBuilderExtensions.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.
@@ -19,12 +19,31 @@ namespace Tiger.Stripes;
 /// <summary>Extensions to the functionality of the <see cref="IInvocationBuilder"/> interface.</summary>
 public static partial class InvocationBuilderExtensions
 {
-    static readonly Func<ILogger, string, IDisposable?> s_handlingScope = LoggerMessage.DefineScope<string>("Processing request {AwsRequestId}…");
+    static readonly ActivitySource s_lambdaActivitySource = new(TelemetrySourceName);
+
+    static readonly Func<ILogger, string, string, IDisposable?> s_handlingScope =
+        LoggerMessage.DefineScope<string, string>("Processing request '{AwsRequestId}' with handler '{HandlerName}'…");
+
+    static readonly Pipe s_outputPipe = new(new(useSynchronizationContext: false));
+    static readonly Utf8JsonWriter s_jsonWriter = new(s_outputPipe.Writer);
 
     [MethodImpl(AggressiveInlining)]
-    static TDependency GetOverridableService<TDependency>(this IServiceProvider serviceProvider, InvocationRequest req, string name)
+    static TDependency GetSpecializedService<TDependency>(this IServiceProvider sp, InvocationRequest req, string name)
         where TDependency : notnull
     {
+        /* note(cosborn)
+         * Whether or not the ordering here is actually important, it feels like it is,
+         * so let's go over the reasoning in detail. First are the pseudo-dependencies:
+         * these are things that are not actually in the DI container, but are provided
+         * by the Lambda runtime. These change with each request (even the logger; it's
+         * associated with the request ID for the log messages), so they can be neither
+         * resolved nor specialized. Then comes a check to see if the dependency can be
+         * resolved at all. If someone has already registered in the DI container, say,
+         * a bare `ILogger`, then we should respect that. Then come the specializations
+         * for which we can do something helpful or smart. Finally, we fall back to the
+         * original `GetRequiredService` method so that expected exceptions get thrown.
+         */
+
         if (typeof(TDependency) == typeof(ILambdaContext))
         {
             return (TDependency)req.LambdaContext;
@@ -35,17 +54,64 @@ public static partial class InvocationBuilderExtensions
             return (TDependency)req.LambdaContext.Logger;
         }
 
-        if (typeof(TDependency) == typeof(ILogger))
+        if (sp.GetService<TDependency>() is { } dep)
         {
-            var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
-            return (TDependency)loggerFactory.CreateLogger(name);
+            return dep;
         }
 
-        return serviceProvider.GetRequiredService<TDependency>();
+        /* note(cosborn)
+         * A bare `ILoggger` doesn't get added to the DI container – only `ILogger<T>`.
+         * We predict that handlers will frequently be static methods defined in static
+         * classes, so we allow it to be resolved and given a reasonable category name.
+         */
+        if (typeof(TDependency) == typeof(ILogger))
+        {
+            var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+            return name is DefaultHandlerName
+                ? (TDependency)loggerFactory.CreateApplicationLogger(sp.GetRequiredService<ILambdaHostEnvironment>())
+                : (TDependency)loggerFactory.CreateLogger(name);
+        }
+
+        // note(cosborn) Retain existing exception behavior if dependency is not found.
+        return sp.GetRequiredService<TDependency>();
     }
 
-    static IDisposable? Handling(ILogger logger, ILambdaContext context) => s_handlingScope(logger, context.AwsRequestId);
+    static IDisposable? Handling(ILogger logger, ILambdaContext context, string name) =>
+        s_handlingScope(logger, context.AwsRequestId, name);
 
-    [LoggerMessage(Warning, "Invocation is nearly out of time!")]
-    static partial void NearlyOutOfTime(ILogger logger);
+    static TagList InvocationTags(ILambdaContext context, string name, bool isColdStart)
+    {
+        const char ArnSeparator = ':';
+        const string Arn = "arn";
+        const string Lambda = "lambda";
+        const string Function = "function";
+
+        var arnParts = context.InvokedFunctionArn.Split(ArnSeparator);
+        var tagList = new TagList(
+            new(AwsLambdaInvokedArn, context.InvokedFunctionArn),
+            new(FaasColdStart, isColdStart),
+            new(FaasExecution, context.AwsRequestId),
+            new(TigerStripesHandlerName, name));
+
+        if (AccountId(arnParts) is { } accountId)
+        {
+            tagList.Add(new(CloudAccountId, accountId));
+        }
+
+        if (VersionedArn(arnParts, context.FunctionVersion) is { } versionedArn)
+        {
+            tagList.Add(new(CloudResourceId, versionedArn));
+        }
+
+        return tagList;
+
+        static string? AccountId(ReadOnlySpan<string> arnParts) =>
+            arnParts is [Arn, _, Lambda, _, _, { } accountId, .. _] ? accountId : null;
+
+        // arn:aws:lambda:<region>:<account-id>:function:<function-name>
+        static string? VersionedArn(ReadOnlySpan<string> arnParts, string version) =>
+            arnParts is [Arn, { } partition, Lambda, { } region, { } accountId, Function, { } resourceName, .. _]
+                ? string.Join(ArnSeparator, Arn, partition, Lambda, region, accountId, Function, resourceName, version)
+                : null;
+    }
 }

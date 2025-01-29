@@ -1,5 +1,5 @@
-// <copyright file="LambdaApplicationOptions.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="LambdaApplicationOptions.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.
@@ -19,6 +19,10 @@ namespace Tiger.Stripes;
 /// <summary>Application options for configuring the <see cref="LambdaApplication"/> class.</summary>
 public sealed record class LambdaApplicationOptions
 {
+    /// <summary>Gets the command line arguments.</summary>
+    [SuppressMessage("Microsoft.Performance", "CA1819", Justification = "Matches the design of `Microsoft.AspNetCore.Builder.WebApplicationOptions`.")]
+    public string[]? Args { get; init; }
+
     /// <summary>Gets the name of the environment in which the application is running.</summary>
     public string? EnvironmentName { get; init; }
 
@@ -32,16 +36,5 @@ public sealed record class LambdaApplicationOptions
     /// Gets the time before freeze of the Lambda execution environment at which
     /// cancellation tokens should request cancellation.
     /// </summary>
-    public TimeSpan? CancellationTimeout { get; init; }
-
-    /// <summary>Converts this instance to an equivalent instance of <see cref="HostApplicationBuilderSettings"/>.</summary>
-    /// <param name="configuration">The configuration to set on the created host application builder settings.</param>
-    /// <returns>An instance of <see cref="HostApplicationBuilderSettings"/> equivalent to this instance.</returns>
-    internal HostApplicationBuilderSettings ToSettings(ConfigurationManager configuration) => new()
-    {
-        ApplicationName = ApplicationName,
-        EnvironmentName = EnvironmentName,
-        Configuration = configuration,
-        ContentRootPath = ContentRootPath,
-    };
+    public TimeSpan? CancellationLeadTime { get; init; }
 }

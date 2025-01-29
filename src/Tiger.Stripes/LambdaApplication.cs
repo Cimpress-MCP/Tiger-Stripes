@@ -1,5 +1,5 @@
-// <copyright file="LambdaApplication.cs" company="Cimpress, Inc.">
-// Copyright 2023 Cimpress, Inc.
+// <copyright file="LambdaApplication.cs" company="Cimpress plc">
+// Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
 // you may not use this file except in compliance with the License.
@@ -13,26 +13,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // </copyright>
-// Licensed to the .NET Foundation under one or more agreements.
-// The .NET Foundation licenses this file to you under the MIT license.
-using static System.StringComparer;
-using Env = System.Environment;
 
 namespace Tiger.Stripes;
 
 /// <summary>The Lambda application used to configure Function invocations.</summary>
-public sealed class LambdaApplication
-    : IInvocationBuilder, IAsyncDisposable
+public sealed partial class LambdaApplication
+    : IInvocationBuilder, IHost
 {
     readonly IHost _host;
-    readonly Dictionary<string, LambdaBootstrapHandler> _handlers = new(Ordinal);
+    readonly LambdaBootstrapHandlerRegistry _handlerRegistry;
 
     /// <summary>Initializes a new instance of the <see cref="LambdaApplication"/> class.</summary>
     /// <param name="host">The host which this application wraps.</param>
     internal LambdaApplication(IHost host)
     {
         _host = host;
-        Logger = host.Services.GetRequiredService<ILoggerFactory>().CreateLogger(Environment.ApplicationName ?? nameof(LambdaApplication));
+        _handlerRegistry = host.Services.GetRequiredService<LambdaBootstrapHandlerRegistry>();
+        Logger = host.Services.GetRequiredService<ILoggerFactory>().CreateApplicationLogger(Environment);
     }
 
     /// <summary>Gets the application's configured services.</summary>
@@ -41,68 +38,27 @@ public sealed class LambdaApplication
     /// <summary>Gets the application's configured <see cref="ConfigurationManager"/>.</summary>
     public IConfiguration Configuration => _host.Services.GetRequiredService<IConfiguration>();
 
-    /// <summary>Gets the application's configured <see cref="IHostEnvironment"/>.</summary>
+    /// <summary>Gets the application's configured <see cref="ILambdaHostEnvironment"/>.</summary>
     public ILambdaHostEnvironment Environment => _host.Services.GetRequiredService<ILambdaHostEnvironment>();
 
     /// <summary>Gets the default logger for the application.</summary>
     public ILogger Logger { get; }
 
-    /// <summary>Initializes a new instance of the <see cref="LambdaApplicationBuilder"/> class with preconfigured defaults.</summary>
-    /// <returns>The <see cref="LambdaApplicationBuilder"/>.</returns>
-    public static LambdaApplicationBuilder CreateBuilder() => new(new());
-
-    /// <summary>Initializes a new instance of the <see cref="LambdaApplicationBuilder"/> class with preconfigured defaults.</summary>
-    /// <param name="options">The application's configuration options.</param>
-    /// <returns>The <see cref="LambdaApplicationBuilder"/>.</returns>
-    public static LambdaApplicationBuilder CreateBuilder(LambdaApplicationOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-
-        return new(options);
-    }
-
-    /// <summary>Initializes a new instance of the <see cref="LambdaApplicationBuilder"/> class with minimal defaults.</summary>
-    /// <returns>The <see cref="LambdaApplicationBuilder"/>.</returns>
-    public static LambdaApplicationBuilder CreateSlimBuilder() => new(new(), slim: true);
-
-    /// <summary>Initializes a new instance of the <see cref="LambdaApplicationBuilder"/> class with minimal defaults.</summary>
-    /// <param name="options">The application's configuration options.</param>
-    /// <returns>The <see cref="LambdaApplicationBuilder"/>.</returns>
-    public static LambdaApplicationBuilder CreateSlimBuilder(LambdaApplicationOptions options)
-    {
-        ArgumentNullException.ThrowIfNull(options);
-
-        return new(options, slim: true);
-    }
-
     /// <inheritdoc/>
     public IInvocationBuilder MapInvoke(string name, LambdaBootstrapHandler handler)
     {
-        _handlers[name] = handler;
+        // note(cosborn) I wonder sometimes whether it's better to overwrite or to throw a runtime exception.
+        // todo(cosborn) Try to see what ASP.NET Core does if you map to the same path twice.
+        _handlerRegistry.Add(name, handler);
         return this;
     }
 
-    /// <summary>Runs the application.</summary>
-    /// <param name="cancellationToken">A token to watch for operation cancellation.</param>
-    /// <returns>A value which, when resolved, represents the completion of the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">The environment's handler was provided or not found.</exception>
-    public async ValueTask RunAsync(CancellationToken cancellationToken = default)
-    {
-        var handlerName = Env.GetEnvironmentVariable("_HANDLER")
-            ?? throw new InvalidOperationException("Lambda environment has no handler configured!");
+    /// <inheritdoc/>
+    public void Dispose() => _host.Dispose();
 
-        if (!_handlers.TryGetValue(handlerName, out var handler))
-        {
-            throw new InvalidOperationException($"""
-No handler is registered for name "{handlerName}"! (Known handlers are: {string.Join(", ", _handlers.Keys.Select(k => $"'{k}'"))}.)
-""");
-        }
+    /// <inheritdoc/>
+    Task IHost.StartAsync(CancellationToken cancellationToken) => _host.StartAsync(cancellationToken);
 
-        using var bootstrap = new LambdaBootstrap(handler);
-        await bootstrap.RunAsync(cancellationToken);
-    }
-
-    /// <summary>Disposes the application.</summary>
-    /// <returns>A task which, when complete, represents the completed disposal operation.</returns>
-    public ValueTask DisposeAsync() => ((IAsyncDisposable)_host).DisposeAsync();
+    /// <inheritdoc/>
+    Task IHost.StopAsync(CancellationToken cancellationToken) => _host.StopAsync(cancellationToken);
 }

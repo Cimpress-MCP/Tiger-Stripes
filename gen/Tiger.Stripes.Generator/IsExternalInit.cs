@@ -1,4 +1,4 @@
-// <copyright file="ILambdaHostEnvironment.cs" company="Cimpress plc">
+// <copyright file="IsExternalInit.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -14,14 +14,11 @@
 // limitations under the License.
 // </copyright>
 
-namespace Tiger.Stripes;
+namespace System.Runtime.CompilerServices;
 
-/// <summary>Provides information about the hosting environment an application is running in.</summary>
-public interface ILambdaHostEnvironment
-    : IHostEnvironment
-{
-    /// <summary>
-    /// Gets or sets the lead time before Lambda environment freeze at which cancellation tokens should request cancellation.
-    /// </summary>
-    TimeSpan CancellationLeadTime { get; set; }
-}
+/// <summary>
+/// Reserved to be used by the compiler for tracking metadata.
+/// This class should not be used by developers in source code.
+/// </summary>
+[EditorBrowsable(Never)]
+static class IsExternalInit;

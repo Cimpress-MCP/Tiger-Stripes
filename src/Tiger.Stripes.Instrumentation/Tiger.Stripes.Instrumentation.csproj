@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Simplifies the instrumentation of AWS Lambda Functions.</Description>
+    <AssemblyTitle>Tiger Stripes Instrumentation</AssemblyTitle>
+  </PropertyGroup>
+
+  <Import Project="NuGet.props" />
+
+  <ItemGroup>
+    <PackageReference Include="OpenTelemetry" />
+
+    <Using Include="OpenTelemetry.Resources" />
+    <Using Include="Tiger.Stripes.Instrumentation" />
+    <Using Static="true" Include="System.Globalization.CultureInfo" />
+    <Using Static="true" Include="Tiger.Stripes.Instrumentation.Constants" />
+    <Using Alias="Attributes" Include="System.Collections.Generic.Dictionary&lt;string, object&gt;" />
+  </ItemGroup>
+
+</Project>

@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tiger.Stripes.Generator", "gen\Tiger.Stripes.Generator.csproj", "{BDDAF4BA-83D1-46AB-8B02-F98C3FF17CBD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tiger.Stripes.Generator", "gen\Tiger.Stripes.Generator\Tiger.Stripes.Generator.csproj", "{BDDAF4BA-83D1-46AB-8B02-F98C3FF17CBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tiger.Stripes", "src\Tiger.Stripes\Tiger.Stripes.csproj", "{B177BC42-EB9F-4FEA-99E1-8F9B2B5A3C79}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tiger.Stripes.Instrumentation", "src\Tiger.Stripes.Instrumentation\Tiger.Stripes.Instrumentation.csproj", "{3CE41F11-8001-4FB6-B75A-596039D8B38B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,5 +26,13 @@ Global
 		{B177BC42-EB9F-4FEA-99E1-8F9B2B5A3C79}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B177BC42-EB9F-4FEA-99E1-8F9B2B5A3C79}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B177BC42-EB9F-4FEA-99E1-8F9B2B5A3C79}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3CE41F11-8001-4FB6-B75A-596039D8B38B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3CE41F11-8001-4FB6-B75A-596039D8B38B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3CE41F11-8001-4FB6-B75A-596039D8B38B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3CE41F11-8001-4FB6-B75A-596039D8B38B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC4060A4-1143-4EBB-A0FD-07058BD4D23C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC4060A4-1143-4EBB-A0FD-07058BD4D23C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC4060A4-1143-4EBB-A0FD-07058BD4D23C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC4060A4-1143-4EBB-A0FD-07058BD4D23C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
