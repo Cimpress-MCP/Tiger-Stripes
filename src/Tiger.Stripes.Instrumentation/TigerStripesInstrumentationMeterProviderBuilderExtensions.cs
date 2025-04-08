@@ -1,4 +1,3 @@
-// <copyright file="TigerStripesInstrumentationMeterProviderBuilderExtensions.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -12,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// </copyright>
 
 namespace OpenTelemetry.Metrics;
 
@@ -20,12 +18,8 @@ namespace OpenTelemetry.Metrics;
 public static class TigerStripesInstrumentationMeterProviderBuilderExtensions
 {
     /// <summary>Enables AWS Lambda instrumentation.</summary>
-    /// <param name="builder"><see cref="MeterProviderBuilder"/> being configured.</param>
+    /// <param name="builder">The <see cref="MeterProviderBuilder"/> to add the instrumentation to.</param>
     /// <returns>The instance of <see cref="MeterProviderBuilder"/> to chain the calls.</returns>
-    public static MeterProviderBuilder AddAwsLambdaInstrumentation(this MeterProviderBuilder builder)
-    {
-        ArgumentNullException.ThrowIfNull(builder);
-
-        return builder.AddMeter(TelemetrySourceName);
-    }
+    public static MeterProviderBuilder AddAwsLambdaInstrumentation(this MeterProviderBuilder builder) =>
+        builder.AddMeter(TelemetrySourceName);
 }

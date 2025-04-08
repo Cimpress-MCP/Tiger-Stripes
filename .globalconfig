@@ -262,6 +262,7 @@ roslynator_use_var_instead_of_implicit_object_creation = true
 
 # Undesirable Refactorings
 dotnet_diagnostic.CA2007.severity = none # Called from Console application, which doesn't have a SynchronizationContext.
+dotnet_diagnostic.RCS1089.severity = none # We prefer explicit mutation, where possible.
 
 # Deprecated StyleCop Rules
 dotnet_diagnostic.SA1101.severity = none
@@ -269,8 +270,8 @@ dotnet_diagnostic.SA1205.severity = none
 dotnet_diagnostic.SA1308.severity = none
 dotnet_diagnostic.SA1309.severity = none
 dotnet_diagnostic.SA1311.severity = none
+dotnet_diagnostic.SA1633.severity = none
 dotnet_diagnostic.SA1400.severity = none
 
 # Open Source Rules
-stylecop.documentation.companyName = Cimpress plc
-file_header_template = Copyright 2024 {companyName}\n\nLicensed under the Apache License, Version 2.0 (the "License") –\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an "AS IS" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.
+file_header_template = Copyright 2024 Cimpress plc\n\nLicensed under the Apache License, Version 2.0 (the "License") –\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an "AS IS" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.

@@ -1,4 +1,3 @@
-// <copyright file="InvocationBuilderExtensions.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -12,23 +11,29 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// </copyright>
 
 namespace Tiger.Stripes;
 
 /// <summary>Extensions to the functionality of the <see cref="IInvocationBuilder"/> interface.</summary>
 public static partial class InvocationBuilderExtensions
 {
-    static readonly ActivitySource s_lambdaActivitySource = new(TelemetrySourceName);
-
-    static readonly Func<ILogger, string, string, IDisposable?> s_handlingScope =
-        LoggerMessage.DefineScope<string, string>("Processing request '{AwsRequestId}' with handler '{HandlerName}'…");
-
     static readonly Pipe s_outputPipe = new(new(useSynchronizationContext: false));
     static readonly Utf8JsonWriter s_jsonWriter = new(s_outputPipe.Writer);
 
+    /*
+        /// <summary>Maps a Lambda Function invocation to the specified parameters.</summary>
+        /// <typeparam name="TService">The type of the service which is the Lambda Function handler.</typeparam>
+        /// <param name="builder">The invocation builder to which to add the handler.</param>
+        /// <param name="name">The name to which to map the provided handler.</param>
+        /// <returns>The invocation builder for further customization.</returns>
+        public static IInvocationBuilder MapInvoke<[DynamicallyAccessedMembers(PublicConstructors | PublicMethods)] TService>(
+            this IInvocationBuilder builder,
+            string name)
+            where TService : class => throw new NotImplementedException("This method is not intended to be called directly. It is used by the code generator.");
+    */
+
     [MethodImpl(AggressiveInlining)]
-    static TDependency GetSpecializedService<TDependency>(this IServiceProvider sp, InvocationRequest req, string name)
+    static TDependency GetSpecializedService<TDependency>(this IServiceProvider serviceProvider, IExtendedLambdaContext context)
         where TDependency : notnull
     {
         /* note(cosborn)
@@ -44,17 +49,12 @@ public static partial class InvocationBuilderExtensions
          * original `GetRequiredService` method so that expected exceptions get thrown.
          */
 
-        if (typeof(TDependency) == typeof(ILambdaContext))
+        if (typeof(TDependency) == typeof(ILambdaContext) || typeof(TDependency) == typeof(IExtendedLambdaContext))
         {
-            return (TDependency)req.LambdaContext;
+            return (TDependency)context;
         }
 
-        if (typeof(TDependency) == typeof(ILambdaLogger))
-        {
-            return (TDependency)req.LambdaContext.Logger;
-        }
-
-        if (sp.GetService<TDependency>() is { } dep)
+        if (serviceProvider.GetService<TDependency>() is { } dep)
         {
             return dep;
         }
@@ -66,52 +66,12 @@ public static partial class InvocationBuilderExtensions
          */
         if (typeof(TDependency) == typeof(ILogger))
         {
-            var loggerFactory = sp.GetRequiredService<ILoggerFactory>();
-            return name is DefaultHandlerName
-                ? (TDependency)loggerFactory.CreateApplicationLogger(sp.GetRequiredService<ILambdaHostEnvironment>())
-                : (TDependency)loggerFactory.CreateLogger(name);
+            return context.Name is DefaultHandlerName
+                ? (TDependency)context.Logger
+                : (TDependency)serviceProvider.GetRequiredService<ILoggerFactory>().CreateLogger(context.Name);
         }
 
         // note(cosborn) Retain existing exception behavior if dependency is not found.
-        return sp.GetRequiredService<TDependency>();
-    }
-
-    static IDisposable? Handling(ILogger logger, ILambdaContext context, string name) =>
-        s_handlingScope(logger, context.AwsRequestId, name);
-
-    static TagList InvocationTags(ILambdaContext context, string name, bool isColdStart)
-    {
-        const char ArnSeparator = ':';
-        const string Arn = "arn";
-        const string Lambda = "lambda";
-        const string Function = "function";
-
-        var arnParts = context.InvokedFunctionArn.Split(ArnSeparator);
-        var tagList = new TagList(
-            new(AwsLambdaInvokedArn, context.InvokedFunctionArn),
-            new(FaasColdStart, isColdStart),
-            new(FaasExecution, context.AwsRequestId),
-            new(TigerStripesHandlerName, name));
-
-        if (AccountId(arnParts) is { } accountId)
-        {
-            tagList.Add(new(CloudAccountId, accountId));
-        }
-
-        if (VersionedArn(arnParts, context.FunctionVersion) is { } versionedArn)
-        {
-            tagList.Add(new(CloudResourceId, versionedArn));
-        }
-
-        return tagList;
-
-        static string? AccountId(ReadOnlySpan<string> arnParts) =>
-            arnParts is [Arn, _, Lambda, _, _, { } accountId, .. _] ? accountId : null;
-
-        // arn:aws:lambda:<region>:<account-id>:function:<function-name>
-        static string? VersionedArn(ReadOnlySpan<string> arnParts, string version) =>
-            arnParts is [Arn, { } partition, Lambda, { } region, { } accountId, Function, { } resourceName, .. _]
-                ? string.Join(ArnSeparator, Arn, partition, Lambda, region, accountId, Function, resourceName, version)
-                : null;
+        return serviceProvider.GetRequiredService<TDependency>();
     }
 }

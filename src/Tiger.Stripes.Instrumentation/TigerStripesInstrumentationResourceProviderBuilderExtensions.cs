@@ -1,4 +1,3 @@
-// <copyright file="TigerStripesInstrumentationResourceProviderBuilderExtensions.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -12,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// </copyright>
 
 namespace OpenTelemetry.Resources;
 
@@ -20,12 +18,8 @@ namespace OpenTelemetry.Resources;
 public static class TigerStripesInstrumentationResourceProviderBuilderExtensions
 {
     /// <summary>Enables AWS Lambda instrumentation.</summary>
-    /// <param name="builder"><see cref="ResourceBuilder"/> being configured.</param>
+    /// <param name="builder">The <see cref="ResourceBuilder"/> to add the instrumentation to.</param>
     /// <returns>The instance of <see cref="ResourceBuilder"/> to chain the calls.</returns>
-    public static ResourceBuilder AddAwsLambdaDetector(this ResourceBuilder builder)
-    {
-        ArgumentNullException.ThrowIfNull(builder);
-
-        return builder.AddDetector(b => b.GetRequiredService<AwsLambdaResourceDetector>());
-    }
+    public static ResourceBuilder AddAwsLambdaDetector(this ResourceBuilder builder) => builder
+        .AddDetector(static b => b.GetRequiredService<AwsLambdaResourceDetector>());
 }

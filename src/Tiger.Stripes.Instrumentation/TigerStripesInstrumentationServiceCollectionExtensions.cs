@@ -1,4 +1,3 @@
-// <copyright file="TigerStripesInstrumentationServiceCollectionExtensions.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -12,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// </copyright>
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -20,8 +18,9 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class TigerStripesInstrumentationServiceCollectionExtensions
 {
     /// <summary>Registers the services required for Tiger Stripes Instrumentation.</summary>
-    /// <param name="services">The collection of services to which to add the required services.</param>
+    /// <param name="services">The collection of services to which the required services will be added.</param>
     /// <returns>The collection of services to which the required services have been added.</returns>
     public static IServiceCollection AddAwsLambdaInstrumentation(this IServiceCollection services) => services
-        .AddSingleton<AwsLambdaResourceDetector>();
+        .AddSingleton<AwsLambdaResourceDetector>()
+        .AddSingleton<IInvocationLifecycleService, InstrumentationInvocationLifecycle>();
 }

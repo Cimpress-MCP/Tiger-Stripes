@@ -10,11 +10,19 @@
   <ItemGroup>
     <PackageReference Include="OpenTelemetry" />
 
+    <ProjectReference Include="..\Tiger.Stripes\Tiger.Stripes.csproj" />
+
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.Metrics" />
+    <Using Include="Amazon.Lambda.Core" />
+    <Using Include="Microsoft.Extensions.Diagnostics.Metrics" />
     <Using Include="OpenTelemetry.Resources" />
+    <Using Include="Tiger.Stripes" />
     <Using Include="Tiger.Stripes.Instrumentation" />
+    <Using Alias="Attributes" Include="System.Collections.Generic.Dictionary&lt;string, object&gt;" />
+    <Using Static="true" Include="System.Diagnostics.ActivityStatusCode" />
     <Using Static="true" Include="System.Globalization.CultureInfo" />
     <Using Static="true" Include="Tiger.Stripes.Instrumentation.Constants" />
-    <Using Alias="Attributes" Include="System.Collections.Generic.Dictionary&lt;string, object&gt;" />
   </ItemGroup>
 
 </Project>

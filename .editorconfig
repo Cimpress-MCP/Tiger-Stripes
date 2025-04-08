@@ -9,3 +9,8 @@ indent_style = space
 
 [*.cs]
 indent_size = 4
+
+[**/Service/*.cs]
+
+# Dependency Injection and Deserialization Targets
+dotnet_diagnostic.CA1812.severity = none

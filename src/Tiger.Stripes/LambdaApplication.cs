@@ -1,4 +1,3 @@
-// <copyright file="LambdaApplication.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -12,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// </copyright>
 
 namespace Tiger.Stripes;
 
@@ -28,8 +26,11 @@ public sealed partial class LambdaApplication
     internal LambdaApplication(IHost host)
     {
         _host = host;
-        _handlerRegistry = host.Services.GetRequiredService<LambdaBootstrapHandlerRegistry>();
-        Logger = host.Services.GetRequiredService<ILoggerFactory>().CreateApplicationLogger(Environment);
+        _handlerRegistry = _host.Services.GetRequiredService<LambdaBootstrapHandlerRegistry>();
+        Logger = CreateApplicationLogger(_host, Environment);
+
+        static ILogger CreateApplicationLogger(IHost host, ILambdaHostEnvironment env) =>
+            host.Services.GetRequiredService<ILoggerFactory>().CreateLogger(env.ApplicationName ?? nameof(LambdaApplication));
     }
 
     /// <summary>Gets the application's configured services.</summary>

@@ -7,11 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="$(MSBuildThisFileDirectory)/Common/**/*.cs" LinkBase="Common" />
-
     <Using Include="Microsoft.Extensions.Configuration" />
     <Using Include="Microsoft.Extensions.DependencyInjection" />
-    <Using Static="True" Include="Common.Constants" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,3 @@
-// <copyright file="LambdaApplicationBuilder.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -12,10 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// </copyright>
-
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using D = System.Diagnostics.Debug;
 
 namespace Tiger.Stripes;
 
@@ -132,7 +127,8 @@ public sealed class LambdaApplicationBuilder
     [MethodImpl(AggressiveInlining)]
     void PostConfigure() => Services
         .AddSingleton(Environment)
-        .AddSingleton<NearlyOutOfTimeNotifier>()
+        .AddScoped<IInvocationLifecycleService, LoggingInvocationLifecycle>()
+        .AddScoped<InvocationLifecycleServiceManager>()
         .AddSingleton<LambdaBootstrapHandlerRegistry>()
         .AddHostedService<LambdaBackgroundService>();
 

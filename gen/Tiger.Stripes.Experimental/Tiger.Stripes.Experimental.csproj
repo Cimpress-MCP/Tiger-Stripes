@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);RSEXPERIMENTAL002</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System.Collections.Concurrent" />
+    <Using Static="true" Include="Tiger.Stripes.Experimental.Constants" />
+
+    <AdditionalFiles Include="AnalyzerReleases.Shipped.md" />
+    <AdditionalFiles Include="AnalyzerReleases.Unshipped.md" />
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+
+</Project>

@@ -1,4 +1,3 @@
-// <copyright file="LambdaApplicationSettingsExtensions.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -12,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// </copyright>
 
 namespace Tiger.Stripes;
 
@@ -23,17 +21,15 @@ static class LambdaApplicationSettingsExtensions
     /// Converts the provided instance of the <see cref="LambdaApplicationOptions"/> class
     /// to an equivalent instance of the <see cref="HostApplicationBuilderSettings"/> class.
     /// </summary>
-    /// <param name="settings">The instance from which to create configuration.</param>
+    /// <param name="options">The options to convert.</param>
     /// <param name="configuration">The configuration to set on the created host application builder settings.</param>
     /// <returns>An instance of <see cref="HostApplicationBuilderSettings"/> equivalent to the provided instance.</returns>
-    public static HostApplicationBuilderSettings ToHostSettings(
-        this LambdaApplicationOptions settings,
-        ConfigurationManager configuration) => new()
-        {
-            Args = settings.Args,
-            ApplicationName = settings.ApplicationName,
-            EnvironmentName = settings.EnvironmentName,
-            Configuration = configuration,
-            ContentRootPath = settings.ContentRootPath,
-        };
+    public static HostApplicationBuilderSettings ToHostSettings(this LambdaApplicationOptions options, ConfigurationManager configuration) => new()
+    {
+        Args = options.Args,
+        ApplicationName = options.ApplicationName,
+        EnvironmentName = options.EnvironmentName,
+        Configuration = configuration,
+        ContentRootPath = options.ContentRootPath,
+    };
 }

@@ -1,4 +1,3 @@
-// <copyright file="Overload.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -12,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-// </copyright>
 
 namespace Tiger.Stripes.Generator;
 
@@ -39,7 +37,7 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
 
     /// <summary>Gets a value indicating whether the overload is <see langword="void"/>.</summary>
     /// <remarks>Asynchronous methods return a value. Only synchronous without result is truly <see langword="void"/>.</remarks>
-    protected virtual bool IsVoid { get; }
+    public virtual bool IsVoid { get; }
 
     /// <summary>Generates serialization setup code.</summary>
     /// <param name="builder">The string builder into which to generate serialization setup code.</param>
@@ -87,7 +85,7 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
     /// <summary>Generates the output type for an overload.</summary>
     /// <param name="builder">The string builder into which to generate an output type.</param>
     /// <returns>The string builder.</returns>
-    protected abstract StringBuilder GenerateOutputCore(StringBuilder builder);
+    public abstract StringBuilder GenerateOutputCore(StringBuilder builder);
 
     /// <summary>Represents a sync overload.</summary>
     /// <param name="HasResult">Whether the overload produces a result.</param>
@@ -103,10 +101,26 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
         public override string HandlerType => HasResult ? "Func" : "Action";
 
         /// <inheritdoc/>
-        protected override bool IsVoid => !HasResult;
+        public override bool IsVoid => !HasResult;
 
         /// <inheritdoc/>
-        protected override StringBuilder GenerateOutputCore(StringBuilder builder) => builder.AppendIf(HasResult, "TOutput");
+        public override StringBuilder GenerateOutputCore(StringBuilder builder) => builder.AppendIf(HasResult, "TOutput");
+    }
+
+    /// <summary>Represents an async overload.</summary>
+    /// <param name="HasResult">Whether the overload produces a result.</param>
+    /// <param name="HasUnifiedContext">Whether the overload uses a single, unified serialization context.</param>
+    /// <param name="Count">The number of dependencies to the overload.</param>
+    public sealed record class ValueAsync(bool HasResult, bool HasUnifiedContext, int Count)
+        : Overload(HasResult, HasUnifiedContext, Count)
+    {
+        /// <inheritdoc/>
+        public override string PreCall => "await ";
+
+        /// <inheritdoc/>
+        public override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
+            .Append("global::System.Threading.Tasks.ValueTask")
+            .AppendIf(HasResult, "<TOutput>");
     }
 
     /// <summary>Represents an async overload.</summary>
@@ -120,8 +134,8 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
         public override string PreCall => "await ";
 
         /// <inheritdoc/>
-        protected override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
-            .Append("global::System.Threading.Tasks.ValueTask")
+        public override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
+            .Append("global::System.Threading.Tasks.Task")
             .AppendIf(HasResult, "<TOutput>");
     }
 
@@ -160,7 +174,7 @@ typeof(global::System.Collections.Generic.IAsyncEnumerable<TOutput>),
 """);
 
         /// <inheritdoc/>
-        protected override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
+        public override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
             .Append("global::System.Collections.Generic.IAsyncEnumerable<TOutput>");
     }
 }
