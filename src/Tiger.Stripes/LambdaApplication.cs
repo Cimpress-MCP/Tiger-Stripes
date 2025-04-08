@@ -28,8 +28,8 @@ public sealed partial class LambdaApplication
     internal LambdaApplication(IHost host)
     {
         _host = host;
-        _handlerRegistry = host.Services.GetRequiredService<LambdaBootstrapHandlerRegistry>();
-        Logger = host.Services.GetRequiredService<ILoggerFactory>().CreateApplicationLogger(Environment);
+        _handlerRegistry = _host.Services.GetRequiredService<LambdaBootstrapHandlerRegistry>();
+        Logger = _host.Services.GetRequiredService<ILoggerFactory>().CreateApplicationLogger(Environment);
     }
 
     /// <summary>Gets the application's configured services.</summary>

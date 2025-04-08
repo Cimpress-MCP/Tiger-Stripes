@@ -39,7 +39,7 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
 
     /// <summary>Gets a value indicating whether the overload is <see langword="void"/>.</summary>
     /// <remarks>Asynchronous methods return a value. Only synchronous without result is truly <see langword="void"/>.</remarks>
-    protected virtual bool IsVoid { get; }
+    public virtual bool IsVoid { get; }
 
     /// <summary>Generates serialization setup code.</summary>
     /// <param name="builder">The string builder into which to generate serialization setup code.</param>
@@ -87,7 +87,7 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
     /// <summary>Generates the output type for an overload.</summary>
     /// <param name="builder">The string builder into which to generate an output type.</param>
     /// <returns>The string builder.</returns>
-    protected abstract StringBuilder GenerateOutputCore(StringBuilder builder);
+    public abstract StringBuilder GenerateOutputCore(StringBuilder builder);
 
     /// <summary>Represents a sync overload.</summary>
     /// <param name="HasResult">Whether the overload produces a result.</param>
@@ -103,10 +103,10 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
         public override string HandlerType => HasResult ? "Func" : "Action";
 
         /// <inheritdoc/>
-        protected override bool IsVoid => !HasResult;
+        public override bool IsVoid => !HasResult;
 
         /// <inheritdoc/>
-        protected override StringBuilder GenerateOutputCore(StringBuilder builder) => builder.AppendIf(HasResult, "TOutput");
+        public override StringBuilder GenerateOutputCore(StringBuilder builder) => builder.AppendIf(HasResult, "TOutput");
     }
 
     /// <summary>Represents an async overload.</summary>
@@ -120,7 +120,7 @@ abstract record class Overload(bool HasResult, bool HasUnifiedContext, int Count
         public override string PreCall => "await ";
 
         /// <inheritdoc/>
-        protected override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
+        public override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
             .Append("global::System.Threading.Tasks.ValueTask")
             .AppendIf(HasResult, "<TOutput>");
     }
@@ -160,7 +160,7 @@ typeof(global::System.Collections.Generic.IAsyncEnumerable<TOutput>),
 """);
 
         /// <inheritdoc/>
-        protected override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
+        public override StringBuilder GenerateOutputCore(StringBuilder builder) => builder
             .Append("global::System.Collections.Generic.IAsyncEnumerable<TOutput>");
     }
 }

@@ -18,7 +18,6 @@ namespace Tiger.Stripes.Instrumentation;
 
 /// <summary>Detects resources in a Lambda Function environment.</summary>
 /// <param name="config">The application's configuration values.</param>
-[SuppressMessage("Microsoft.Design", "CA1812", Justification = "Instantiated by the host.")]
 sealed class AwsLambdaResourceDetector(IConfiguration config)
     : IResourceDetector
 {

@@ -17,7 +17,6 @@
 namespace Tiger.Stripes;
 
 /// <summary>A background service that runs a Lambda Function.</summary>
-[SuppressMessage("Microsoft.Design", "CA1812", Justification = "Instantiated by the host.")]
 sealed class LambdaBackgroundService(LambdaBootstrapHandlerRegistry handlerRegistry, IConfiguration config)
     : BackgroundService
 {

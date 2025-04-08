@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="gen/Tiger.Stripes.Experimental/Tiger.Stripes.Experimental.csproj" />
+  <Project Path="gen/Tiger.Stripes.Generator/Tiger.Stripes.Generator.csproj" />
+  <Project Path="src/Tiger.Stripes.Instrumentation/Tiger.Stripes.Instrumentation.csproj" />
+  <Project Path="src/Tiger.Stripes/Tiger.Stripes.csproj" />
+  <Project Path="unit/Test.csproj" />
+</Solution>

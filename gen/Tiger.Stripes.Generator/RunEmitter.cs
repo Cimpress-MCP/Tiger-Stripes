@@ -17,9 +17,9 @@
 namespace Tiger.Stripes.Generator;
 
 /// <summary>Emits overloads for default invocation mapping methods.</summary>
-/// /// <param name="builder">The builder into which to emit the generated code.</param>
-sealed class RunEmitter(StringBuilder builder)
-    : Emitter(builder)
+/// /// <param name="Builder">The builder into which to emit the generated code.</param>
+sealed record class RunEmitter(StringBuilder Builder)
+    : Emitter(Builder)
 {
     /// <inheritdoc/>
     public override string ClassName { get; } = "LambdaApplicationExtensions";
@@ -31,7 +31,7 @@ sealed class RunEmitter(StringBuilder builder)
     public override string Summary { get; } = """Extensions to the functionality of the <see cref="global::Tiger.Stripes.LambdaApplication"/> interface.""";
 
     /// <inheritdoc/>
-    protected override StringBuilder GenerateOverload(Overload overload) => Builder
+    public override StringBuilder GenerateOverload(Overload overload) => Builder
         .AppendLine("""
     /// <summary>Runs a Lambda Function with the provided default mapping.</summary>
 """)
@@ -57,7 +57,7 @@ sealed class RunEmitter(StringBuilder builder)
 ,
         global::System.Threading.CancellationToken cancellationToken = default)
 """)
-        .AppendTrailingConstraints(overload)
+        .AppendDependencyTypeConstraints(overload.Count)
         .Append("""
     {
         _ = application.MapInvoke(global::Tiger.Stripes.Constants.DefaultHandlerName, handler, 

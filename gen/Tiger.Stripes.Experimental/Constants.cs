@@ -1,4 +1,4 @@
-// <copyright file="IsExternalInit.cs" company="Cimpress plc">
+// <copyright file="Constants.cs" company="Cimpress plc">
 // Copyright 2024 Cimpress plc
 //
 // Licensed under the Apache License, Version 2.0 (the "License") –
@@ -14,11 +14,14 @@
 // limitations under the License.
 // </copyright>
 
-namespace System.Runtime.CompilerServices;
+namespace Tiger.Stripes.Experimental;
 
-/// <summary>
-/// Reserved to be used by the compiler for tracking metadata.
-/// This class should not be used by developers in source code.
-/// </summary>
-[EditorBrowsable(Never)]
-static class IsExternalInit;
+/// <summary>Constants.</summary>
+static class Constants
+{
+    /// <summary>The name of the method that is used to map invocations.</summary>
+    public const string MapInvokeMethodName = "MapInvoke";
+
+    /// <summary>The acceptable method names for a service type.</summary>
+    public static readonly FrozenSet<string> AcceptableMethodNames = FrozenSet.ToFrozenSet(["HandleAsync", "Handle"], SC.Ordinal);
+}

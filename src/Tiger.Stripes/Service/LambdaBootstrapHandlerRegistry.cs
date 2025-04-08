@@ -17,10 +17,9 @@
 namespace Tiger.Stripes;
 
 /// <summary>Registry of Lambda bootstrap handlers.</summary>
-[SuppressMessage("Microsoft.Design", "CA1812", Justification = "Instantiated by the host.")]
 sealed class LambdaBootstrapHandlerRegistry
 {
-    readonly Dictionary<string, LambdaBootstrapHandler> _handlers = new(Ordinal);
+    readonly HandlerMap _handlers = new(Ordinal);
 
     /// <summary>Gets or sets the handler with the specified name.</summary>
     /// <param name="name">The name of the handler to get or set.</param>
@@ -52,8 +51,8 @@ sealed class LambdaBootstrapHandlerRegistry
     /// <param name="allHandlers">The collection of all handlers.</param>
     /// <exception cref="InvalidOperationException">Always thrown.</exception>
     [DoesNotReturn]
-    static void NoSuchHandler<TCollection>(string? message, TCollection allHandlers)
+    static void NoSuchHandler<TCollection>(string message, TCollection allHandlers)
         where TCollection : IEnumerable<string> => throw new InvalidOperationException($"""
-        {message} (Known handlers are: {string.Join(", ", allHandlers.Select(k => $"'{k}'"))}.)
+{message} (Known handlers are: {string.Join(", ", allHandlers.Select(static k => $"'{k}'"))}.)
 """);
 }

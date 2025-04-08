@@ -23,5 +23,6 @@ public static class TigerStripesInstrumentationServiceCollectionExtensions
     /// <param name="services">The collection of services to which to add the required services.</param>
     /// <returns>The collection of services to which the required services have been added.</returns>
     public static IServiceCollection AddAwsLambdaInstrumentation(this IServiceCollection services) => services
-        .AddSingleton<AwsLambdaResourceDetector>();
+        .AddSingleton<AwsLambdaResourceDetector>()
+        .AddSingleton<IInvocationLifecycleService, InstrumentationInvocationLifecycle>();
 }

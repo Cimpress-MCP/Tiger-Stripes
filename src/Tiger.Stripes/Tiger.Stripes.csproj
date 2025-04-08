@@ -31,21 +31,23 @@
     <Using Include="System.Diagnostics.Metrics" />
     <Using Include="System.IO.Pipelines" />
     <Using Include="System.Text.Json" />
+    <Using Include="System.Text.Json.Serialization" />
     <Using Include="Amazon.Lambda.Core" />
     <Using Include="Amazon.Lambda.RuntimeSupport" />
     <Using Include="Microsoft.Extensions.Diagnostics.Metrics" />
     <Using Include="Microsoft.Extensions.Hosting" />
     <Using Include="Microsoft.Extensions.FileProviders" />
     <Using Include="Microsoft.Extensions.Logging" />
-    <Using Include="Microsoft.Extensions.Options" />
-    <Using Include="Tiger.Stripes" />
     <Using Include="Tiger.Stripes.Generator" />
+    <Using Alias="D" Include="System.Diagnostics.Debug" />
+    <Using Alias="Env" Include="System.Environment" />
+    <Using Alias="HandlerMap" Include="System.Collections.Generic.Dictionary&lt;string, Amazon.Lambda.RuntimeSupport.LambdaBootstrapHandler&gt;" />
+    <Using Static="true" Include="System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes" />
     <Using Static="true" Include="System.Runtime.CompilerServices.MethodImplOptions" />
     <Using Static="true" Include="System.StringComparer" />
     <Using Static="true" Include="System.Text.Encodings.Web.JavaScriptEncoder" />
     <Using Static="true" Include="Microsoft.Extensions.Logging.LogLevel" />
     <Using Static="true" Include="Tiger.Stripes.Constants" />
-    <Using Alias="Env" Include="System.Environment" />
 
     <AssemblyAttribute Include="GenerateOverloadsAttribute" />
 

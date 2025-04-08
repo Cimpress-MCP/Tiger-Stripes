@@ -14,9 +14,6 @@
 // limitations under the License.
 // </copyright>
 
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using D = System.Diagnostics.Debug;
-
 namespace Tiger.Stripes;
 
 /// <summary>A builder for Lambda applications and services.</summary>
@@ -132,7 +129,8 @@ public sealed class LambdaApplicationBuilder
     [MethodImpl(AggressiveInlining)]
     void PostConfigure() => Services
         .AddSingleton(Environment)
-        .AddSingleton<NearlyOutOfTimeNotifier>()
+        .AddScoped<IInvocationLifecycleService, LoggingInvocationLifecycle>()
+        .AddScoped<InvocationLifecycleServiceManager>()
         .AddSingleton<LambdaBootstrapHandlerRegistry>()
         .AddHostedService<LambdaBackgroundService>();
 

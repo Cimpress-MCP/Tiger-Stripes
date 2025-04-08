@@ -37,7 +37,7 @@ static class StringBuilderExtensions
         .AppendAggregate(
             overload.Count,
             static (acc, cur) => acc.AppendLine($"""
-                var dependency{cur} = dependencyResolutionScope.ServiceProvider.GetSpecializedService<TDependency{cur}>(req, name);
+                var dependency{cur} = dependencyResolutionScope.ServiceProvider.GetSpecializedService<TDependency{cur}>(extendedContext);
 """));
 
     /// <summary>Appends the generated code attribute to this instance.</summary>
@@ -79,15 +79,12 @@ static class StringBuilderExtensions
 """)
         .AppendSerializationParameterDeclarations(overload);
 
-    /// <summary>Appends trailing constraints to this instance.</summary>
+    /// <summary>Appends dependency type constraints to this instance.</summary>
     /// <param name="builder">The instance to which to append trailing constraints.</param>
-    /// <param name="overload">The value from which to determine which values to append.</param>
+    /// <param name="count">The number of dependency types.</param>
     /// <returns>This instance.</returns>
-    public static StringBuilder AppendTrailingConstraints(this StringBuilder builder, Overload overload) => builder
-        .AppendDependencyTypeConstraints(overload.Count)
-        .AppendLineIf(overload.HasUnifiedContext, """
-        where TSerializerContext : global::System.Text.Json.Serialization.JsonSerializerContext
-""");
+    public static StringBuilder AppendDependencyTypeConstraints(this StringBuilder builder, int count) => builder
+        .AppendAggregate(count, static (acc, cur) => acc.AppendLine($"        where TDependency{cur} : notnull"));
 
     /// <summary>Appends type documentation to this instance.</summary>
     /// <param name="builder">The instance to which to append type documentation.</param>
@@ -102,9 +99,6 @@ static class StringBuilderExtensions
     /// <typeparam name="TDependency{cur}">The type of the {ordinal[cur]} dependency to resolve in order to handle the invocation.</typeparam>
 """))
         .AppendLineIf(
-            overload.HasUnifiedContext,
-            """    /// <typeparam name="TSerializerContext">The serialization context for the Lambda Function handler.</typeparam>""")
-        .AppendLineIf(
             overload.HasResult,
             """    /// <typeparam name="TOutput">The type of the output to the Lambda Function handler.</typeparam>""");
 
@@ -116,7 +110,6 @@ static class StringBuilderExtensions
         .Append("<TInput")
         .AppendHandlerTypeParameters(overload.Count)
         .AppendIf(overload.HasResult, ", TOutput")
-        .AppendIf(overload.HasUnifiedContext, ", TSerializerContext")
         .Append('>');
 
     /// <summary>Appends the value if the provided condition is <see langword="true"/>.</summary>
@@ -157,16 +150,13 @@ static class StringBuilderExtensions
     static StringBuilder AppendAggregate(this StringBuilder builder, int count, Func<StringBuilder, int, StringBuilder> aggregator) =>
         Enumerable.Range(1, count).Aggregate(builder, aggregator);
 
-    static StringBuilder AppendDependencyTypeConstraints(this StringBuilder builder, int count) => builder
-        .AppendAggregate(count, static (acc, cur) => acc.AppendLine($"        where TDependency{cur} : notnull"));
-
     static StringBuilder AppendHandlerTypeParameters(this StringBuilder builder, int count) => builder
         .AppendAggregate(count, static (acc, cur) => acc.Append($", TDependency{cur}"));
 
     static StringBuilder AppendSerializationParameterDeclarations(this StringBuilder builder, Overload overload) => builder
         .AppendByOverload(
             overload,
-            "TSerializerContext serializerContext",
+            "global::System.Text.Json.Serialization.JsonSerializerContext serializerContext",
             "global::System.Text.Json.Serialization.Metadata.JsonTypeInfo<TInput> inputTypeInfo",
             """
 ,

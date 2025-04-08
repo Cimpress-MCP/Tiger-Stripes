@@ -70,4 +70,28 @@ static class Constants
     /// <summary>The name of the attribute which contains the AWS log stream names.</summary>
     /// <remarks>This is an array value.</remarks>
     public const string AwsLogStreamNames = "aws.log.stream.names";
+
+    /// <summary>The name of the attribute which contains the cloud account ID.</summary>
+    public const string CloudAccountId = "cloud.account.id";
+
+    /// <summary>The name of the attribute which contains the cloud resource ID.</summary>
+    public const string CloudResourceId = "cloud.resource.id";
+
+    /// <summary>The name of the attribute which contains the FaaS cold start flag.</summary>
+    public const string FaasColdStart = "faas.coldstart";
+
+    /// <summary>The name of the attribute which contains the FaaS execution ID.</summary>
+    public const string FaasExecution = "faas.execution";
+
+    /// <summary>The name of the attribute which contains the AWS Lambda invoked ARN.</summary>
+    public const string AwsLambdaInvokedArn = "aws.lambda.invoked_arn";
+
+    /// <summary>The name of the attribute which contains the handler name.</summary>
+    public const string TigerStripesHandlerName = "tiger.stripes.handler_name";
+
+    /// <summary>The name of the attribute which contains the number of times an invocation has neared its time limit.</summary>
+    public const string TigerStripesNearlyOutOfTime = "tiger.stripes.nearly_out_of_time";
+
+    /// <summary>The description of the attribute which contains the number of times an invocation has neared its time limit.</summary>
+    public const string TigerStripesNearlyOutOfTimeDescription = "The number of times an invocation has neared its time limit.";
 }
